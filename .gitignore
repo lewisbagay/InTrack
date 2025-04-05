@@ -1,0 +1,33 @@
+# Dependencies (can be reinstalled)
+node_modules/
+.pnpm/
+
+# Next.js Build Artifacts
+.next/
+.out/
+
+# Prisma Generated Files
+prisma/generated/
+prisma/migrations/
+
+# Environment Variables
+.env
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Lockfiles (not used with pnpm)
+package-lock.json
+
+# Editor & OS Specific Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+

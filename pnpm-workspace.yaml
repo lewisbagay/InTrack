@@ -1,0 +1,9 @@
+ignoredBuiltDependencies:
+  - '@prisma/engines'
+  - esbuild
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - '@prisma/client'
+  - prisma
+  - protobufjs
+  - sharp

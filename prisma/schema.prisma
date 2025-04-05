@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Database connection and provider
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Prisma Client generation
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model for authentication and roles
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  role          UserRole
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orders        Order[] // 🔧 FIXED: Added opposite relation for Order
+  notifications Notification[] // 🔧 FIXED: Added opposite relation for Notification
+}
+
+// Enum for user roles (Admin, Staff, Customer)
+enum UserRole {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+// Product model for managing products in inventory
+model Product {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float
+  sku          String        @unique
+  stockLevel   Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  expiryDate   DateTime?
+  batchNumber  String?
+  supplierId   Int?
+  supplier     Supplier?     @relation(fields: [supplierId], references: [id])
+  stocks       Stock[] // 🔧 FIXED: Added opposite relation for Stock
+  orderDetails OrderDetail[] // 🔧 FIXED: Added opposite relation for OrderDetail
+  reports      Report[] // 🔧 FIXED: Added opposite relation for Report
+}
+
+// Stock model to track quantities of products
+model Stock {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Order model to manage customer orders
+model Order {
+  id           Int           @id @default(autoincrement())
+  customerId   Int
+  customer     User          @relation(fields: [customerId], references: [id])
+  orderDate    DateTime      @default(now())
+  totalAmount  Float
+  status       OrderStatus
+  orderDetails OrderDetail[]
+}
+
+// Enum for order statuses
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// OrderDetail model to track products in an order
+model OrderDetail {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+// Supplier model for managing suppliers
+model Supplier {
+  id        Int       @id @default(autoincrement())
+  name      String
+  contact   String
+  email     String    @unique
+  phone     String?
+  address   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[] // 🔧 FIXED: Added opposite relation for Product
+}
+
+// Report model for tracking product sales
+model Report {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  salesCount Int
+  reportDate DateTime @default(now())
+}
+
+// Notification model for managing alerts
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
